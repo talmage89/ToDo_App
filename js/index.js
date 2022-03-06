@@ -142,6 +142,7 @@ function editListText(listId) {
         if (e.code == "Enter") {
             listItem.blur();
         }
+        console.log(e.code);
     })
 }
 
