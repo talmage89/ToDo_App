@@ -36,11 +36,14 @@ let app = (function(){
                                 let lists = document.getElementById('allLists');
                                 lists.innerHTML = '<div class="list-group">'
                                 for(let i = 0; i<listsArray.length; i++){
-                                    const task = document.createElement('label');
-                                    task.id = `${listsArray[i].id}`;
-                                    task.className = "list-group-item list-group-item-action list"
-                                    task.innerHTML = listsArray[i].name;
-                                    lists.appendChild(task);
+                                    const list = document.createElement('label');
+                                    list.id = `${listsArray[i].id}`;
+                                    list.className = "list-group-item list-group-item-action"
+                                    list.innerHTML = listsArray[i].name;
+                                    if (list.id == listId) {
+                                        list.className = "list-group-item list-group-item-action list"
+                                    }
+                                    lists.appendChild(list);
                                 }
                                 lists.innerHTML += '</div>'
 
@@ -68,7 +71,8 @@ app.renderLists(currentListId);
 let parentElement = document.querySelector('.main');
 parentElement.addEventListener('click', e => {
     if (e.target !== e.currentTarget) {
-        if (e.target.className == "list-group-item list-group-item-action list"){
+        let regex = /list-group-item-action/gm;
+        if (regex.exec(e.target.className)) {
             currentListId = e.target.id;
             app.renderLists(currentListId);
         }
@@ -106,6 +110,18 @@ parentElement.addEventListener('click', e => {
     e.stopPropagation();
 });
 
+function deleteTaskEventHandler(e) {
+    if (e.type == 'mouseover') {
+        console.log('moused over');
+        let deleteTask = document.getElementById(`delete-${e.target.firstChild.id}`);
+        deleteTask.style.display = 'flex';
+    }
+    if (e.type == 'mouseout') {
+        let deleteTask = document.getElementById(`delete-${e.relatedTarget.firstChild.id}`);
+        deleteTask.style.display = 'none';
+    }
+}
+
 function editListText(listId) {
     let listItem = document.getElementById(listId);
     listItem.contentEditable = 'true';
@@ -120,6 +136,11 @@ function editListText(listId) {
         } else {
             app.removeList(listId);
             app.renderLists();
+        }
+    })
+    listItem.addEventListener('keydown', (e) => {
+        if (e.code == "Enter") {
+            listItem.blur();
         }
     })
 }

@@ -35,8 +35,8 @@ class List {
             const task = document.createElement('label');
             task.className = 'list-group-item';
             e.completed ?
-                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="" checked="true">${e.text}`:
-                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="">${e.text}`;
+                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="" checked="true">${e.text}<button class='delete-task' id='delete-${e.id}'>x</button>`:
+                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="">${e.text}<button class='delete-task' id='delete-${e.id}'>x</button>`;
             htmlContainer.appendChild(task);
         });
         htmlContainer.innerHTML += "</div>"
