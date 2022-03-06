@@ -1,6 +1,9 @@
 let app = (function(){
     let listsArray = new Array();
     return {
+        getLists:           function() {
+                                return listsArray;
+                            },
         addList:            function(list){
                                 listsArray.push(list);
                             },
@@ -106,9 +109,53 @@ parentElement.addEventListener('click', e => {
             });
             app.renderLists(currentListId);
         } 
+        if (e.target.id == 'searchbar') {
+            // console.log('clicked');
+            // let searchbar = document.getElementById('searchbar'),
+            //     options = {
+            //         childList: true,
+            //         characterData: true
+            //     },
+            //     observer = new MutationObserver(onMutation);
+            // observer.observe(searchbar, options);
+
+            const searchbar = document.getElementById('searchbar');
+            searchbar.addEventListener('input', (e) => {
+                let lists = app.getLists();
+
+                let listsDisplay = document.getElementById('allLists');
+                let regex = `${e.target.value}`;
+                let regexTest = new RegExp(regex, 'mi');
+
+                listsDisplay.innerHTML = '<div class="list-group">'
+                lists.forEach((el) => {
+                    if (regexTest.exec(el.name)){
+                        const list = document.createElement('label');
+                        list.id = `${el.id}`;
+                        list.className = "list-group-item list-group-item-action"
+                        list.innerHTML = el.name;
+                        listsDisplay.appendChild(list);
+                    }
+                })
+                listsDisplay.innerHTML += '</div>';
+            })
+            searchbar.addEventListener('blur', (e) => {
+                searchbar.value = '';
+            });
+        } 
     }
     e.stopPropagation();
 });
+
+
+
+// function onMutation(mutations) {
+//     for (let mutation of mutations) {
+//         if (mutation.type == 'characterData') {
+//             console.log('mutated');
+//         }
+//     }
+// }  
 
 function deleteTaskEventHandler(e) {
     if (e.type == 'mouseover') {
@@ -142,7 +189,6 @@ function editListText(listId) {
         if (e.code == "Enter") {
             listItem.blur();
         }
-        console.log(e.code);
     })
 }
 
