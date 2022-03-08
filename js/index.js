@@ -74,14 +74,22 @@ app.renderLists(currentListId);
 let parentElement = document.querySelector('.main');
 parentElement.addEventListener('click', e => {
     if (e.target !== e.currentTarget) {
-        let regex = /list-group-item-action/gm;
-        if (regex.exec(e.target.className)) {
+        let listNameReg = /list-group-item-action/gm;
+        if (listNameReg.exec(e.target.className)) {
             currentListId = e.target.id;
             app.renderLists(currentListId);
         }
         if (e.target.className == "form-check-input me-1") {
             let taskId = e.target.id;
             app.togTaskCompleted(currentListId, taskId);
+        }
+
+
+        if (e.target.id == 'newListButton') {
+            let newId = Utils.getNewId();
+            app.addList(new List(`\n`, [], newId));
+            app.renderLists(newId);
+            editListText(newId);
         }
         if (e.target.id == 'add-task-button') {
             let input = document.getElementById('add-task-input');
@@ -96,12 +104,6 @@ parentElement.addEventListener('click', e => {
                 htmlContainer.innerHTML = '<p>Please choose a list, or create a new one.</p>'
             }   
         }
-        if (e.target.id == 'newListButton') {
-            let newId = Utils.getNewId();
-            app.addList(new List(`\n`, [], newId));
-            app.renderLists(newId);
-            editListText(newId);
-        }
         if (e.target.id == 'clear-selected') {
             let tasks = app.getCompletedTasks(currentListId);
             tasks.forEach(task => {
@@ -109,63 +111,75 @@ parentElement.addEventListener('click', e => {
             });
             app.renderLists(currentListId);
         } 
-        if (e.target.id == 'searchbar') {
-            // console.log('clicked');
-            // let searchbar = document.getElementById('searchbar'),
-            //     options = {
-            //         childList: true,
-            //         characterData: true
-            //     },
-            //     observer = new MutationObserver(onMutation);
-            // observer.observe(searchbar, options);
+        if (e.target.id == 'delete-tasks-btn') {
+            manageDeleteBtns('show');
+            const doneBtn = document.getElementById('done-deleting');
+            doneBtn.style.display = 'inline-block';
+        }
+        if (e.target.className == 'delete-task') {
+            let re = /.{4}\-.{4}\-.{4}\-.{4}$/m;
+            let idToDel = re[Symbol.match](e.target.id);
+            app.removeTaskFromList(currentListId, idToDel);
+            app.renderLists(currentListId);
+            manageDeleteBtns('show');
+        }
+        if (e.target.id == 'done-deleting') {
+            manageDeleteBtns('hide');
+            document.getElementById('done-deleting').style.display = 'none';
+        }
 
+
+        if (e.target.id == 'searchbar') {
             const searchbar = document.getElementById('searchbar');
             searchbar.addEventListener('input', (e) => {
                 let lists = app.getLists();
-
-                let listsDisplay = document.getElementById('allLists');
+                let listsHTML = document.getElementById('allLists');
                 let regex = `${e.target.value}`;
                 let regexTest = new RegExp(regex, 'mi');
 
-                listsDisplay.innerHTML = '<div class="list-group">'
+                listsHTML.innerHTML = '<div class="list-group">'
                 lists.forEach((el) => {
                     if (regexTest.exec(el.name)){
                         const list = document.createElement('label');
                         list.id = `${el.id}`;
                         list.className = "list-group-item list-group-item-action"
                         list.innerHTML = el.name;
-                        listsDisplay.appendChild(list);
+                        listsHTML.appendChild(list);
                     }
                 })
-                listsDisplay.innerHTML += '</div>';
+                listsHTML.innerHTML += '</div>';
             })
             searchbar.addEventListener('blur', (e) => {
                 searchbar.value = '';
+                app.renderLists(currentListId);
             });
         } 
     }
     e.stopPropagation();
 });
 
-
-
-// function onMutation(mutations) {
-//     for (let mutation of mutations) {
-//         if (mutation.type == 'characterData') {
-//             console.log('mutated');
-//         }
-//     }
-// }  
-
-function deleteTaskEventHandler(e) {
-    if (e.type == 'mouseover') {
-        console.log('moused over');
+let listTasks = parentElement.getElementsByClassName('form-check-input me-1');
+Array.from(listTasks).forEach((task) => {
+    console.log(task);
+    task.addEventListener('mouseover', (e) => {
         let deleteTask = document.getElementById(`delete-${e.target.firstChild.id}`);
         deleteTask.style.display = 'flex';
-    }
-    if (e.type == 'mouseout') {
-        let deleteTask = document.getElementById(`delete-${e.relatedTarget.firstChild.id}`);
-        deleteTask.style.display = 'none';
+    });
+});
+
+function manageDeleteBtns(string) {
+    const taskDeleteBtns = document.getElementsByClassName('delete-task');
+    switch(string) {
+        case 'show': 
+            Array.from(taskDeleteBtns).forEach((btn) => {
+                btn.style.display = 'flex';
+            });
+            break;
+        case 'hide':
+            Array.from(taskDeleteBtns).forEach((btn) => {
+                btn.style.display = 'none';
+            });
+            break;
     }
 }
 
