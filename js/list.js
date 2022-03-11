@@ -5,19 +5,30 @@ class List {
         id == '' ? this.id = Utils.getNewId() : this.id = id;
         
     }
-    addTask(text){
-        const taskToAdd = new Task(text);
-        this.tasks.push(taskToAdd);
+    rename(newName){
+        this.name = newName;
+    }
+
+
+
+    addTask(task){
+        this.tasks.push(task);
     }
     removeTask(id){
         this.tasks = this.tasks.filter(task => task.id != id);
     }
-    rename(newName){
-        this.name = newName;
+    renameTask(id, newText) {
+        let target = this.tasks.find(task => task.id == id);
+        target.editText(newText);
     }
     taskToggle(id){
         let target = this.tasks.find(task => task.id == id);
         target.toggleCompleted();
+    }
+
+
+    getTasks() {
+        return this.tasks;
     }
     getCompletedTasks(){
         let completedTasks = [];
@@ -35,8 +46,8 @@ class List {
             const task = document.createElement('label');
             task.className = 'list-group-item';
             e.completed ?
-                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="" checked="true">${e.text}<button class='delete-task' id='delete-${e.id}'>x</button>`:
-                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="">${e.text}<button class='delete-task' id='delete-${e.id}'>x</button>`;
+                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value="" checked="true"><span id="text-${e.id}">${e.text}</span><button class='delete-task' id='delete-${e.id}'>x</button>`:
+                task.innerHTML = `<input class="form-check-input me-1" id="${e.id}" type="checkbox" value=""><span id="text-${e.id}">${e.text}</span><button class='delete-task' id='delete-${e.id}'>x</button>`;
             htmlContainer.appendChild(task);
         });
         htmlContainer.innerHTML += "</div>"

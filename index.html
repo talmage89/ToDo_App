@@ -21,23 +21,31 @@
                       <input id="searchbar" placeholder="Search for a list">
                       <div class="list-group" id="allLists"></div>
                     </span>
-                    <button id="newListButton">Create a new list</button>
+                    <span>
+
+                    </span>
                 </div>
                 <div class="col-8 rightsideContent">
                   <div class="list-group" id="listItems">
-                    <p>Please enter your to-do list items here.</p>
+                    <p>Make a new list!</p>
                   </div>
-                  <span>
-                    <input id="add-task-input" placeholder="Add a new task">
-                    <button id="add-task-button">Enter</button>
-                    <button id="clear-selected">Clear selected tasks</button>
-                    <span>
-                      <button id="delete-tasks-btn">Delete tasks</button>
-                      <button id="done-deleting" style="display: none;">Done</button>
-                    </span>
-
-                  </span>
-                </div>
+                  <div class='buttonDisplay'>
+                    <div id="bottomPanel">
+                      <button id="newListButton">Create a new list</button>
+                      <button id="add-task-button">Add New Task</button>
+                      <button id="clear-selected">Clear selected tasks</button>
+                      <span class="deletion-span">
+                        <button id="delete-lists-btn">Delete a list</button>
+                        <button id="done-deleting-lists" style="display: none;">Done</button>
+                      </span>
+                      <span class="deletion-span">
+                        <button id="delete-tasks-btn">Delete a task</button>
+                        <button id="done-deleting-tasks" style="display: none;">Done</button>
+                      </span>
+                    </div>
+                    <button id="openBottomPanel">^</button>
+                  </div>
+                  </div>
             </div>
         </div>
     </div>

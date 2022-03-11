@@ -6,11 +6,12 @@
 body{
     margin: 0;
     width: 100%;
-    height: auto;
+    height: 100vh;
     background-color: blueviolet;
 
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 .main{
     margin: 50px 0px;
@@ -49,25 +50,16 @@ body{
 #searchbar:focus{
     outline: none;
 }
-.list{
-    background-color: rgb(204, 204, 204);
-}
-.list:hover{
-    background-color: rgb(182, 182, 182);
-}
-.list-group-item-action:focus{
-    background-color: rgb(116, 116, 116);
-    color: white;
-}
 .rightsideContent{
     padding: 10px 0px;
     background-color: white;
     height: 500px;
     overflow:scroll;
-
+    
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
 }
 .form-check-input{position: relative;}
 .delete-task{
@@ -80,7 +72,68 @@ body{
     color: whitesmoke;
     background-color: gray;
 }
-
+.list{
+    background-color: rgb(204, 204, 204);
+}
+.list:hover{
+    background-color: rgb(182, 182, 182);
+}
+.list-group-item-action{position: relative;}
+.list-group-item-action:focus{
+    background-color: rgb(116, 116, 116);
+    color: white;
+}
+.delete-list{
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 5px;
+    border: none;
+    border-radius: 10px;
+    color: whitesmoke;
+    background-color: gray;
+}
 #listItems{
     margin: 15px;
+}
+#bottomPanel{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 0px;
+    width: 300px;
+    overflow: hidden;
+    transition:all .4s;
+}
+.buttonDisplay{
+    padding: 20px;
+    position: fixed;
+    right: 140px;
+    bottom: 60px;
+    text-align: right;
+}
+.buttonDisplay button{
+    width: auto;
+    padding: 10px 15px;
+    font-size: 13px;
+    border: none;
+    border-radius: 15px;
+    background-color: rgb(151, 99, 201);
+    color: white;
+}
+.deletion-span{
+    display: flex;
+    flex-direction: row;
+    transition: all .5s;
+}
+.deletion-span > * {
+    margin: 0px 0px 0px 10px;
+}
+#openBottomPanel{
+    margin-top: 15px;
+    font-size: 25px;
+    border-radius: 200px;
+    width: 50px;
+    height: 50px;
 }

@@ -1,31 +1,39 @@
 let app = (function(){
     let listsArray = new Array();
     return {
+        addList:            function(list){
+            listsArray.push(list);
+        },
+        addTaskToList:      function(listId, task){
+            let target = listsArray.find(e => e.id == listId);
+            target.addTask(task);
+        },
+        removeList:         function(listId){
+            listsArray = listsArray.filter(e => e.id != listId);
+            
+        },
+        removeTaskFromList: function(listId, taskId){
+            let target = listsArray.find(e => e.id == listId);
+            target.removeTask(taskId);
+        },
+        changeListName:     function(listId, newName) {
+            let target = listsArray.find(e => e.id == listId);
+            target.rename(newName);
+        },
+        changeTaskName:     function(listId, taskId, newText) {
+            let target = listsArray.find(e => e.id == listId);
+            target.renameTask(taskId, newText);
+        },
+        
+
+        
         getLists:           function() {
                                 return listsArray;
                             },
-        addList:            function(list){
-                                listsArray.push(list);
-                            },
-        addTaskToList:      function(listId, task){
+        getListTasks:       function(listId){
                                 let target = listsArray.find(e => e.id == listId);
-                                target.addTask(task);
+                                return target.getTasks();
                             },
-
-        removeList:         function(listId){
-                                listsArray = listsArray.filter(e => e.id != listId);
-
-                            },
-        removeTaskFromList: function(listId, taskId){
-                                let target = listsArray.find(e => e.id == listId);
-                                target.removeTask(taskId);
-                            },
-
-        changeListName:     function(listId, newName) {
-                                let target = listsArray.find(e => e.id == listId);
-                                target.rename(newName);
-                            },
-
         togTaskCompleted:   function(listId, taskId) {
                                 let target = listsArray.find(e => e.id == listId);
                                 target.taskToggle(taskId);
@@ -35,6 +43,8 @@ let app = (function(){
                                 return target.getCompletedTasks();
                             },
 
+
+
         renderLists:        function(listId){
                                 let lists = document.getElementById('allLists');
                                 lists.innerHTML = '<div class="list-group">'
@@ -42,7 +52,7 @@ let app = (function(){
                                     const list = document.createElement('label');
                                     list.id = `${listsArray[i].id}`;
                                     list.className = "list-group-item list-group-item-action"
-                                    list.innerHTML = listsArray[i].name;
+                                    list.innerHTML = `<span>${listsArray[i].name}<button class="delete-list" id="delete-${listsArray[i].id}">x</button></span>`;
                                     if (list.id == listId) {
                                         list.className = "list-group-item list-group-item-action list"
                                     }
@@ -67,9 +77,8 @@ let app = (function(){
 
 let currentListId = '';
 
-app.addList(new List('First List'));
-app.addList(new List('Second List'));
-app.renderLists(currentListId);
+
+
 
 let parentElement = document.querySelector('.main');
 parentElement.addEventListener('click', e => {
@@ -85,24 +94,35 @@ parentElement.addEventListener('click', e => {
         }
 
 
+
         if (e.target.id == 'newListButton') {
             let newId = Utils.getNewId();
             app.addList(new List(`\n`, [], newId));
             app.renderLists(newId);
             editListText(newId);
         }
+        if (e.target.id == 'delete-lists-btn') {
+            if (app.getLists().length != 0) {
+                manageListDeleteBtns('show');
+                document.getElementById('done-deleting-lists').style.display = 'inline-block';
+                let deleteBtns = document.getElementsByClassName('delete-list');
+            }
+            
+        }
+        if (e.target.id == 'done-deleting-lists') {
+            document.getElementById('done-deleting-lists').style.display = 'none';
+            manageListDeleteBtns('hide');
+        }
         if (e.target.id == 'add-task-button') {
-            let input = document.getElementById('add-task-input');
-            if(input.value != '' && currentListId != ''){
-                app.addTaskToList(currentListId, input.value);
+            if (currentListId != '') {
+                let newTaskId = Utils.getNewId();
+                app.addTaskToList(currentListId, new Task('\n', false, newTaskId));
                 app.renderLists(currentListId);
-                input.value = '';
-            } else if (currentListId != ''){
-                alert('invalid task');
+                editTaskText(newTaskId);
             } else {
                 let htmlContainer = document.getElementById('listItems');
-                htmlContainer.innerHTML = '<p>Please choose a list, or create a new one.</p>'
-            }   
+                htmlContainer.innerHTML = '<p>Please choose or create a list.</p>'
+            }
         }
         if (e.target.id == 'clear-selected') {
             let tasks = app.getCompletedTasks(currentListId);
@@ -112,21 +132,31 @@ parentElement.addEventListener('click', e => {
             app.renderLists(currentListId);
         } 
         if (e.target.id == 'delete-tasks-btn') {
-            manageDeleteBtns('show');
-            const doneBtn = document.getElementById('done-deleting');
-            doneBtn.style.display = 'inline-block';
+            const doneBtn = document.getElementById('done-deleting-tasks');
+            if (app.getListTasks(currentListId).length != 0) {
+                manageTaskDeleteBtns('show');
+                doneBtn.style.display = 'inline-block';
+            } else {
+                doneBtn.style.display = 'none';    
+            }
         }
         if (e.target.className == 'delete-task') {
             let re = /.{4}\-.{4}\-.{4}\-.{4}$/m;
             let idToDel = re[Symbol.match](e.target.id);
             app.removeTaskFromList(currentListId, idToDel);
             app.renderLists(currentListId);
-            manageDeleteBtns('show');
+            if (app.getListTasks(currentListId).length != 0) {
+                manageTaskDeleteBtns('show');
+            } else {
+                manageTaskDeleteBtns('hide');
+                document.getElementById('done-deleting-tasks').style.display = 'none';
+            }
         }
-        if (e.target.id == 'done-deleting') {
-            manageDeleteBtns('hide');
-            document.getElementById('done-deleting').style.display = 'none';
+        if (e.target.id == 'done-deleting-tasks') {
+            manageTaskDeleteBtns('hide');
+            document.getElementById('done-deleting-tasks').style.display = 'none';
         }
+
 
 
         if (e.target.id == 'searchbar') {
@@ -154,6 +184,18 @@ parentElement.addEventListener('click', e => {
                 app.renderLists(currentListId);
             });
         } 
+
+        if (e.target.id == 'openBottomPanel') {
+            let button = document.getElementById('openBottomPanel');
+            let panel = document.getElementById('bottomPanel');
+            if (panel.style.height == '225px') {
+                panel.style.height = '0px';
+                button.innerText = '^';
+            } else {
+                panel.style.height = '225px';
+                button.innerText = '\u02C5';
+            }
+        }
     }
     e.stopPropagation();
 });
@@ -167,7 +209,7 @@ Array.from(listTasks).forEach((task) => {
     });
 });
 
-function manageDeleteBtns(string) {
+function manageTaskDeleteBtns(string) {
     const taskDeleteBtns = document.getElementsByClassName('delete-task');
     switch(string) {
         case 'show': 
@@ -182,11 +224,50 @@ function manageDeleteBtns(string) {
             break;
     }
 }
+function manageListDeleteBtns(string) {
+    const listDeleteBtns = document.getElementsByClassName('delete-list');
+    switch(string) {
+        case 'show': 
+            Array.from(listDeleteBtns).forEach((btn) => {
+                btn.style.display = 'flex';
+                btn.addEventListener('click', (el) => {
+                    if (el.target.className == 'delete-list') {
+                        let re = /.{4}\-.{4}\-.{4}\-.{4}$/m;
+                        let idToDel = re[Symbol.match](el.target.id);
+                        app.removeList(idToDel);
+                        lists = app.getLists();
+                        if (lists.length != 0) {
+                            if (idToDel == currentListId) {
+                                currentListId = lists[lists.length-1].id;
+                            } 
+                            app.renderLists(currentListId);
+                            manageListDeleteBtns('show');
+                        } else {
+                            currentListId = '';
+                            manageListDeleteBtns('hide');
+                        }
+                    } else {
+                        manageListDeleteBtns('hide');
+                    }
+                });
+            });
+            break;
+        case 'hide':
+            Array.from(listDeleteBtns).forEach((btn) => {
+                btn.style.display = 'none';
+                document.getElementById('done-deleting-lists').style.display = 'none';
+                app.renderLists(currentListId);
+            });
+            break;
+    }
+}
+
 
 function editListText(listId) {
     let listItem = document.getElementById(listId);
     listItem.contentEditable = 'true';
     listItem.focus();
+    listItem.scrollIntoView();
     listItem.innerText = '';
     listItem.addEventListener('blur', () => {
         if (listItem.innerText != '') {
@@ -196,7 +277,7 @@ function editListText(listId) {
             app.renderLists(currentListId);
         } else {
             app.removeList(listId);
-            app.renderLists();
+            app.renderLists(currentListId);
         }
     })
     listItem.addEventListener('keydown', (e) => {
@@ -205,4 +286,25 @@ function editListText(listId) {
         }
     })
 }
-
+function editTaskText(taskId) {
+    let task = document.getElementById(`text-${taskId}`);
+    task.contentEditable = 'true';
+    task.focus();
+    task.scrollIntoView();
+    task.innerText = '';
+    task.addEventListener('blur', () => {
+        if (task.innerText != '') {
+            app.changeTaskName(currentListId, taskId, task.innerText);
+            task.contentEditable = 'false';
+            app.renderLists(currentListId);
+        } else {
+            app.removeTaskFromList(currentListId, taskId);
+            app.renderLists(currentListId);
+        }
+    })
+    task.addEventListener('keydown', (e) => {
+        if (e.code == "Enter") {
+            task.blur();
+        }
+    })
+}

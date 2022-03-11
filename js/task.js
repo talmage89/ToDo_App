@@ -1,8 +1,8 @@
 class Task {
-    constructor(text, completed = false){
+    constructor(text, completed = false, id = ''){
         this.text = text;
         this.completed = completed;
-        this.id = Utils.getNewId();
+        id == '' ? this.id = Utils.getNewId() : this.id = id;
     }
     editText(newText) {
         this.text = newText;
