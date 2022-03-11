@@ -37,6 +37,7 @@ let app = (function(){
         togTaskCompleted:   function(listId, taskId) {
                                 let target = listsArray.find(e => e.id == listId);
                                 target.taskToggle(taskId);
+                                save();
                             },
         getCompletedTasks:  function(listId){
                                 let target = listsArray.find(e => e.id == listId);
@@ -48,6 +49,7 @@ let app = (function(){
         renderLists:        function(listId){
                                 let lists = document.getElementById('allLists');
                                 lists.innerHTML = '<div class="list-group">'
+                                save();
                                 for(let i = 0; i<listsArray.length; i++){
                                     const list = document.createElement('label');
                                     list.id = `${listsArray[i].id}`;
@@ -75,9 +77,20 @@ let app = (function(){
     }
 })();
 
-let currentListId = '';
+let storedCurrentListId = JSON.parse(localStorage.getItem('currentList'));
+let storedLists = JSON.parse(localStorage.getItem('lists'));
+let currentListId;
+if (storedCurrentListId == null) {currentListId = '';} 
+else {currentListId = storedCurrentListId;}
 
-
+if (storedLists != null) {
+    for (let i = 0; i < storedLists.length; i++) {
+        let tasks = new Array();
+        for (let j = 0; j < storedLists[i].tasks.length; j ++) {tasks.push(new Task(storedLists[i].tasks[j].text, storedLists[i].tasks[j].completed, storedLists[i].tasks[j].id));}
+        app.addList(new List(storedLists[i].name, tasks, storedLists[i].id));
+    }
+    app.renderLists(currentListId);
+}
 
 
 let parentElement = document.querySelector('.main');
@@ -200,14 +213,13 @@ parentElement.addEventListener('click', e => {
     e.stopPropagation();
 });
 
-let listTasks = parentElement.getElementsByClassName('form-check-input me-1');
-Array.from(listTasks).forEach((task) => {
-    console.log(task);
-    task.addEventListener('mouseover', (e) => {
-        let deleteTask = document.getElementById(`delete-${e.target.firstChild.id}`);
-        deleteTask.style.display = 'flex';
-    });
-});
+// let listTasks = parentElement.getElementsByClassName('form-check-input me-1');
+// Array.from(listTasks).forEach((task) => {
+//     task.addEventListener('mouseover', (e) => {
+//         let deleteTask = document.getElementById(`delete-${e.target.firstChild.id}`);
+//         deleteTask.style.display = 'flex';
+//     });
+// });
 
 function manageTaskDeleteBtns(string) {
     const taskDeleteBtns = document.getElementsByClassName('delete-task');
@@ -307,4 +319,8 @@ function editTaskText(taskId) {
             task.blur();
         }
     })
+}
+function save() {
+    localStorage.setItem('lists', JSON.stringify(app.getLists()));
+    localStorage.setItem('currentList', JSON.stringify(currentListId));
 }

@@ -109,9 +109,9 @@ body{
 }
 .buttonDisplay{
     padding: 20px;
-    position: fixed;
-    right: 140px;
-    bottom: 60px;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
     text-align: right;
 }
 .buttonDisplay button{
